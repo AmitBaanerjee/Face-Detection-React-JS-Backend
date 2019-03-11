@@ -5,15 +5,10 @@ import Logo from './Components/logo/Logo.js'
 import ImageLinkForm from './Components/ImageLinkForm/ImageLinkForm.js'
 import Rank from './Components/Rank/Rank.js'
 import Particles from 'react-particles-js';
-import Clarifai from 'clarifai';
 import FaceRecognition from './Components/FaceRecognition/FaceRecognition.js';
 import Signin from './Components/Signin/Signin.js';
 import Register from './Components/Register/Register.js';
 
-const app = new Clarifai.App({
-	apiKey:'b69ad8d6a28d4e4fac81c7b1862fe74d',
-	
-});
 const particle_parameters={
             		particles: {
             			number:{
@@ -26,26 +21,26 @@ const particle_parameters={
             			}
             }
         }
-
+const initialState={
+	input:'',
+	imageURL:'',
+	box:{},
+	route:'signin',
+	isSignedin:false,
+	user:{
+		id:'',
+		name:'',
+		email:'',
+		joined:'',
+		entries:0
+	}
+}
 class App extends Component {
 	constructor(){
 		super();
-		this.state={
-			input:'',
-			imageURL:'',
-			box:{},
-			route:'signin',
-			isSignedin:false,
-			user:{
-				id:'',
-				name:'',
-				email:'',
-				joined:'',
-				entries:0
-			}
-		}
+		this.state=initialState;
 	}
-	
+
 	loadUser=(data)=>{
 		this.setState({
 			user:{
@@ -62,7 +57,14 @@ class App extends Component {
 	}
 	onSubmit=()=>{
 		this.setState({imageURL:this.state.input});
-		app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
+		fetch('http://localhost:1994/imageURL',{
+			method:'post',
+			headers:{'Content-Type':'application/json'},
+			body:JSON.stringify({
+			input:this.state.input
+			})
+		})
+		.then(response=>response.json())
 		.then(response=>{
 			if(response){
 				fetch('http://localhost:1994/image',{
@@ -76,11 +78,11 @@ class App extends Component {
 				.then(count=>{
 					this.setState(Object.assign(this.state.user,{entries:count}))
 				})
+				.catch(console.log)
 			}
 			this.displaybox(this.calcbox(response));
 		})
-	    
-	}
+}
 	calcbox=(data)=>{
 		const boxdimensions=data.outputs[0].data.regions[0].region_info.bounding_box;
 		const image=document.getElementById('inputimage');
@@ -91,14 +93,14 @@ class App extends Component {
 			toprow:boxdimensions.top_row*height,
 			rightcol:width-(boxdimensions.right_col*width),
 			bottomrow:height-(boxdimensions.bottom_row*height)
-		}	
+		}
 	}
 	displaybox=(box)=>{
 		this.setState({box:box});
 	}
 	onRoutechange=(value)=>{
 		if(value==='signout'){
-			this.setState({isSignedin:false});
+			this.setState(initialState);
 		}
 		else if(value=== 'home'){
 			this.setState({isSignedin:true});
@@ -118,15 +120,15 @@ class App extends Component {
 	    	<div>
 		        <Logo/>
 		       	<Rank name={this.state.user.name} entries={this.state.user.entries}/>
-		        <ImageLinkForm 
-		        onInputChange={this.onInputChange} 
+		        <ImageLinkForm
+		        onInputChange={this.onInputChange}
 		        onSubmit={this.onSubmit}
 		        />
 		        <FaceRecognition  imageURL={this.state.imageURL} box={this.state.box}/>
 		    </div>
       		:
       		(
-      			this.state.route=== 'signin' 
+      			this.state.route=== 'signin'
       			?
       			<Signin loadUser={this.loadUser} onRoutechange={this.onRoutechange}/>
       			:

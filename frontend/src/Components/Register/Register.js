@@ -23,6 +23,10 @@ class Register extends React.Component {
   }
 
   onSubmitSignIn = () => {
+    if(!this.state.email||!this.state.password||!this.state.name){
+      alert("Please fill all the required fields for successful register");
+    }
+    else{
     fetch('http://localhost:1994/register', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
@@ -34,11 +38,15 @@ class Register extends React.Component {
     })
       .then(response => response.json())
       .then(user => {
-        if (user) {
+        if (user.id) {
           this.props.loadUser(user)
           this.props.onRoutechange('home');
         }
+        else{
+          alert("All fields not entered correctly!");
+        }
       })
+    }
   }
 
   render() {
