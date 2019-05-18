@@ -118,6 +118,6 @@ app.put('/image',(req,res)=>{
 })
 
 
-app.listen(1994,()=>{
-	console.log("server is listening on port:1994");
+app.listen(process.env.PORT || 1994,()=>{
+	console.log(`server is listening on port: ${process.env.PORT}`);
 })
