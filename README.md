@@ -1,4 +1,4 @@
-## FACE DETECTION REACT.JS APPLICATION
+## FACE DETECTION APPLICATION BACKEND 
 
 Developed a web application which takes image URL’s and detects faces present on them. 
 Front end was implemented in React.js using Clarifai API. 
