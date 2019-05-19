@@ -12,14 +12,12 @@ const clarifai_app = new Clarifai.App({
 });
 
 const db=knex({
-  client: 'pg',
-  connection: {
-    host : '127.0.0.1',
-    user : 'apple',
-    password : '',
-    database : 'project'
-  }
-});
+  client:'pg',
+	connection:{
+		connectionString:process.env.DATABASE_URL,
+		ssl:true,
+	}
+  });
 app.use(bodyparser.json());
 app.use(cors());
 
